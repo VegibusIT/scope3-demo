@@ -402,9 +402,6 @@ export default function CO2Demo() {
                     報告率: {companies.filter(c => c.cooperates).length}/{companies.length}社 → <strong className="text-[#D85A30]">全体集計は不可能</strong>
                   </div>
                 </div>
-                <div className="text-center mt-6">
-                  <button onClick={reset} className="px-5 py-2 rounded-lg text-sm cursor-pointer bg-gray-100 text-gray-500">↺ 最初から</button>
-                </div>
               </div>
             ) : (
               <div className="space-y-6">
@@ -430,9 +427,6 @@ export default function CO2Demo() {
                     <div>✓ <strong className="text-white">個社の内訳</strong>は見えない</div>
                     <div>✓ 機密データは<strong className="text-white">契約通りに保護</strong></div>
                     <div>✓ 全社が<strong className="text-white">安心して参加</strong>できた</div>
-                  </div>
-                  <div className="text-center mt-6">
-                    <button onClick={reset} className="px-5 py-2 rounded-lg text-sm cursor-pointer bg-white/10 text-slate-300">↺ 最初から</button>
                   </div>
                 </div>
 
@@ -474,6 +468,15 @@ export default function CO2Demo() {
               </div>
             )}
           </>
+        )}
+
+        {step >= 6 && (
+          <div className="text-center py-4">
+            <button onClick={reset}
+              className="px-6 py-3 rounded-xl text-sm font-bold cursor-pointer bg-gray-200 text-gray-600 hover:bg-gray-300 transition-colors">
+              ↺ 最初からやり直す
+            </button>
+          </div>
         )}
 
         <div ref={bottomRef} />
