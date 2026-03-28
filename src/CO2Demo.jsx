@@ -433,10 +433,27 @@ export default function CO2Demo() {
                 {/* なぜできるのか */}
                 <div className="bg-white rounded-2xl border border-gray-200 p-8">
                   <h2 className="text-xl font-bold text-gray-900 mb-3">なぜ、数値を見せずに集計できるのか？</h2>
-                  <div className="bg-slate-900 text-white rounded-xl p-4 mb-6 text-center">
-                    <div className="text-lg font-bold mb-1">3つの暗号技術の組み合わせ</div>
-                    <div className="text-[#5EDDA8] font-bold">すべてブロックチェーンで10年以上の実績がある技術</div>
-                    <div className="text-xs text-slate-400 mt-1">新しい技術ではない。実績のある技術を、サプライチェーンに応用した。</div>
+                  <div className="bg-slate-900 text-white rounded-xl p-5 mb-6">
+                    <div className="text-lg font-bold mb-2 text-center">3つの暗号技術の組み合わせ</div>
+                    <div className="text-[#5EDDA8] font-bold text-center">すべてブロックチェーンで10年以上の実績がある技術</div>
+                    <div className="text-sm text-slate-400 mt-3 text-center">新しい技術ではない。実績のある技術を、ブロックチェーンなしでサプライチェーンに直接適用した。</div>
+                    <div className="mt-4 grid grid-cols-3 gap-3 text-center text-sm">
+                      <div className="bg-white/5 rounded-lg p-3">
+                        <div className="text-slate-400 text-xs mb-1">従来の中央集権</div>
+                        <div className="text-white font-bold">集める＝見れる</div>
+                        <div className="text-xs text-[#D85A30] mt-1">→ だから嫌がられる</div>
+                      </div>
+                      <div className="bg-white/5 rounded-lg p-3">
+                        <div className="text-slate-400 text-xs mb-1">ブロックチェーン</div>
+                        <div className="text-white font-bold">中央をなくす</div>
+                        <div className="text-xs text-yellow-400 mt-1">→ 管理者不在で運用困難</div>
+                      </div>
+                      <div className="bg-[#1D9E75]/20 rounded-lg p-3 border border-[#1D9E75]/30">
+                        <div className="text-[#5EDDA8] text-xs mb-1 font-bold">VCC</div>
+                        <div className="text-white font-bold">集める≠見れる</div>
+                        <div className="text-xs text-[#5EDDA8] mt-1">→ 集めるけど中身は見えない</div>
+                      </div>
+                    </div>
                   </div>
                   <div className="space-y-6">
                     <div className="flex gap-5 items-start">
