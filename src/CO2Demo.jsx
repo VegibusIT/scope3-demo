@@ -287,78 +287,94 @@ export default function CO2Demo() {
         {/* ===== Step 5: 送信アニメーション（両方） ===== */}
         {step >= 5 && (
           <div className="bg-white rounded-2xl border border-gray-200 p-6">
-            <h2 className="text-lg font-bold text-gray-900 mb-2">
+            <h2 className="text-lg font-bold text-gray-900 mb-4">
               {isBefore ? "④ 小売へ送信" : "⑤ 小売へ送信"}
             </h2>
+
+            {/* 送信元（4社） */}
+            <div className="grid grid-cols-4 gap-4">
+              {companies.map((c, i) => (
+                <div key={i} className={`rounded-xl border p-3 text-center ${isBefore ? "border-gray-200" : "border-[#1D9E75]/20"}`}>
+                  <div className="text-2xl">{c.emoji}</div>
+                  <div className="text-sm font-bold text-gray-900">{c.name}</div>
+                </div>
+              ))}
+            </div>
+
+            {/* 送信パイプ（4本が1つの小売に合流） */}
             <div className="grid grid-cols-4 gap-4">
               {companies.map((c, i) => {
                 const refused = isBefore && !c.cooperates;
                 const stuckAt40 = refused && sendProgress[i] >= 40;
                 return (
-                  <div key={i} className="text-center">
-                    {/* 送信元 */}
-                    <div className={`rounded-xl border p-3 mb-2 ${isBefore ? "border-gray-200" : "border-[#1D9E75]/20"}`}>
-                      <div className="text-2xl">{c.emoji}</div>
-                      <div className="text-sm font-bold text-gray-900">{c.name}</div>
-                    </div>
+                  <div key={i} className="relative h-36 flex justify-center">
+                    <div className="w-px h-full bg-gray-200" />
 
-                    {/* 送信パイプ */}
-                    <div className="relative h-36 flex justify-center">
-                      <div className="w-px h-full bg-gray-200" />
+                    {sendProgress[i] > 0 && (
+                      <div className="absolute w-full flex justify-center"
+                        style={{ top: `${sendProgress[i]}%`, transform: "translateY(-50%)" }}>
+                        {stuckAt40 ? (
+                          <div className="flex flex-col items-center">
+                            <div className="px-2 py-1 rounded text-xs font-bold bg-[#D85A30] text-white">🚫 拒否</div>
+                            <div className="text-[10px] text-[#D85A30] mt-1 font-bold whitespace-nowrap">送りません！</div>
+                          </div>
+                        ) : sendProgress[i] < 100 ? (
+                          <div className={`px-2 py-1 rounded text-xs font-bold text-white ${isBefore ? "bg-gray-700" : "bg-[#1D9E75]"}`}>
+                            {isBefore ? `${c.co2}kg` : "🔒"}
+                          </div>
+                        ) : null}
+                      </div>
+                    )}
 
-                      {/* 流れるデータ or 止まったデータ */}
-                      {sendProgress[i] > 0 && (
-                        <div className="absolute w-full flex justify-center"
-                          style={{ top: `${sendProgress[i]}%`, transform: "translateY(-50%)" }}>
-                          {stuckAt40 ? (
-                            /* 拒否: 途中で止まって🚫 */
-                            <div className="flex flex-col items-center">
-                              <div className="px-2 py-1 rounded text-xs font-bold bg-[#D85A30] text-white">🚫 拒否</div>
-                              <div className="text-[10px] text-[#D85A30] mt-1 font-bold whitespace-nowrap">送りません！</div>
-                            </div>
-                          ) : sendProgress[i] < 100 ? (
-                            /* 送信中 */
-                            <div className={`px-2 py-1 rounded text-xs font-bold text-white ${isBefore ? "bg-gray-700" : "bg-[#1D9E75]"}`}>
-                              {isBefore ? `${c.co2}kg` : "🔒"}
-                            </div>
-                          ) : null}
-                        </div>
-                      )}
+                    {!isBefore && (
+                      <div className="absolute top-[12%] -translate-y-1/2 flex items-center gap-1">
+                        <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] ${
+                          sendProgress[i] > 12 ? "bg-[#1D9E75] text-white" : "bg-gray-100 text-gray-300"
+                        }`}>🔐</div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
 
-                      {/* 暗号化ポイント（hyde） */}
-                      {!isBefore && (
-                        <div className="absolute top-[12%] -translate-y-1/2 flex items-center gap-1">
-                          <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] ${
-                            sendProgress[i] > 12 ? "bg-[#1D9E75] text-white" : "bg-gray-100 text-gray-300"
-                          }`}>🔐</div>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* 受信先 */}
-                    <div className={`rounded-xl border p-3 mt-2 ${
+            {/* 受信先（1つの小売） */}
+            <div className={`rounded-xl border p-4 ${
+              isBefore ? "border-gray-200 bg-gray-50" : "border-[#1D9E75]/20 bg-[#1D9E75]/5"
+            }`}>
+              <div className="text-center mb-3">
+                <span className="text-2xl">🏪</span>
+                <span className="font-bold text-gray-900 ml-2">小売が受信したデータ</span>
+              </div>
+              <div className="grid grid-cols-4 gap-3">
+                {companies.map((c, i) => {
+                  const refused = isBefore && !c.cooperates;
+                  const stuckAt40 = refused && sendProgress[i] >= 40;
+                  const arrived = sendProgress[i] >= 100;
+                  return (
+                    <div key={i} className={`rounded-lg p-2 text-center text-sm ${
                       refused && stuckAt40
-                        ? "border-[#D85A30]/30 bg-[#D85A30]/5"
-                        : sendProgress[i] >= 100
-                        ? isBefore ? "border-yellow-300 bg-yellow-50" : "border-[#1D9E75]/30 bg-[#1D9E75]/5"
-                        : "border-gray-100 bg-gray-50"
+                        ? "bg-[#D85A30]/10"
+                        : arrived
+                        ? isBefore ? "bg-yellow-50" : "bg-white/80"
+                        : "bg-white/50"
                     }`}>
-                      <div className="text-xs text-gray-400 mb-1">🏪 小売</div>
+                      <div className="text-xs text-gray-400">{c.emoji} {c.name}</div>
                       {refused && stuckAt40 ? (
-                        <div className="text-[#D85A30] font-bold text-sm">未受信</div>
-                      ) : sendProgress[i] >= 100 ? (
+                        <div className="text-[#D85A30] font-bold">✕ 未受信</div>
+                      ) : arrived ? (
                         isBefore ? (
-                          <div className="font-mono font-bold text-sm text-gray-900">{c.co2} kg</div>
+                          <div className="font-mono font-bold text-gray-900">{c.co2} kg</div>
                         ) : (
                           <div className="text-lg">🔒</div>
                         )
                       ) : (
-                        <div className="text-gray-300 text-xs">…</div>
+                        <div className="text-gray-300">…</div>
                       )}
                     </div>
-                  </div>
-                );
-              })}
+                  );
+                })}
+              </div>
             </div>
           </div>
         )}
@@ -429,28 +445,28 @@ export default function CO2Demo() {
                     <div className="text-xs text-slate-400 mt-1">新しい技術ではない。実績のある技術を、サプライチェーンに応用した。</div>
                   </div>
                   <div className="space-y-6">
-                    <div className="flex gap-4 items-start">
-                      <img src="logos/hyde.png" alt="hyde" className="w-14 h-14 rounded-xl shrink-0 object-cover" />
+                    <div className="flex gap-5 items-start">
+                      <img src="logos/hyde.png" alt="hyde" className="w-16 h-16 rounded-xl shrink-0 object-cover" />
                       <div>
-                        <div className="font-bold text-gray-900 mb-1">データが本物であることを保証する</div>
-                        <p className="text-sm text-gray-600 mb-2">IoTセンサーのTPMチップが計測した瞬間に電子署名。<strong>機械が直接署名する</strong>ので改ざんが検知できる。</p>
-                        <div className="text-xs text-gray-400 bg-gray-50 rounded-lg p-2">📎 TEE — Intel SGX等でブロックチェーンのノード保護に使われてきた技術</div>
+                        <div className="text-lg font-bold text-gray-900 mb-1">データが本物であることを保証する</div>
+                        <p className="text-base text-gray-600 mb-3">IoTセンサーのTPMチップが計測した瞬間に電子署名。<strong>機械が直接署名する</strong>ので改ざんが検知できる。</p>
+                        <div className="text-sm text-gray-400 bg-gray-50 rounded-lg p-3">📎 TEE — Intel SGX等でブロックチェーンのノード保護に使われてきた技術</div>
                       </div>
                     </div>
-                    <div className="flex gap-4 items-start">
-                      <img src="logos/argo.png" alt="argo" className="w-14 h-14 rounded-xl shrink-0 object-cover" />
+                    <div className="flex gap-5 items-start">
+                      <img src="logos/argo.png" alt="argo" className="w-16 h-16 rounded-xl shrink-0 object-cover" />
                       <div>
-                        <div className="font-bold text-gray-900 mb-1">数値を見せずに「基準以下」を証明する</div>
-                        <p className="text-sm text-gray-600 mb-2">「年収は500万以上」と給与明細を見せずに証明できる技術。同じ原理で<strong>CO₂が基準値以下であることだけ</strong>を証明。</p>
-                        <div className="text-xs text-gray-400 bg-gray-50 rounded-lg p-2">📎 ZKP — Zcash（2016年〜）やEthereum L2で毎日数百万件処理されている技術</div>
+                        <div className="text-lg font-bold text-gray-900 mb-1">数値を見せずに「基準以下」を証明する</div>
+                        <p className="text-base text-gray-600 mb-3">「年収は500万以上」と給与明細を見せずに証明できる技術。同じ原理で<strong>CO₂が基準値以下であることだけ</strong>を証明。</p>
+                        <div className="text-sm text-gray-400 bg-gray-50 rounded-lg p-3">📎 ZKP — Zcash（2016年〜）やEthereum L2で毎日数百万件処理されている技術</div>
                       </div>
                     </div>
-                    <div className="flex gap-4 items-start">
-                      <img src="logos/plat.png" alt="plat" className="w-14 h-14 rounded-xl shrink-0 object-cover" />
+                    <div className="flex gap-5 items-start">
+                      <img src="logos/plat.png" alt="plat" className="w-16 h-16 rounded-xl shrink-0 object-cover" />
                       <div>
-                        <div className="font-bold text-gray-900 mb-1">暗号化したまま足し算する</div>
-                        <p className="text-sm text-gray-600 mb-2">準同型暗号（FHE）は<strong>暗号文のまま足し算</strong>ができる。復号しても合計値しか分からない。</p>
-                        <div className="text-xs text-gray-400 bg-gray-50 rounded-lg p-2">📎 FHE — Web3のプライバシー保護投票やオンチェーンオークションで実用化が進む技術</div>
+                        <div className="text-lg font-bold text-gray-900 mb-1">暗号化したまま足し算する</div>
+                        <p className="text-base text-gray-600 mb-3">準同型暗号（FHE）は<strong>暗号文のまま足し算</strong>ができる。復号しても合計値しか分からない。</p>
+                        <div className="text-sm text-gray-400 bg-gray-50 rounded-lg p-3">📎 FHE — Web3のプライバシー保護投票やオンチェーンオークションで実用化が進む技術</div>
                       </div>
                     </div>
                   </div>
