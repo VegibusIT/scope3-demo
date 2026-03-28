@@ -100,7 +100,7 @@ export default function CO2Demo() {
             <button onClick={() => setTab("after")}
               className={`px-5 py-2 rounded-lg text-sm font-bold transition-all cursor-pointer ${
                 !isBefore ? "bg-white text-[#1D9E75] shadow-sm" : "text-gray-400"
-              }`}>hydeの世界</button>
+              }`}>VCCの世界</button>
           </div>
         </div>
 
@@ -142,7 +142,7 @@ export default function CO2Demo() {
               ① {isBefore ? "報告依頼 — 「全部見せてください」" : "データ共有契約 — 何を見せて、何を隠すか"}
             </h2>
             <p className="text-sm text-gray-400 mb-4">
-              {isBefore ? "従来は全データの開示を求めるしかなかった。" : "hydeの世界では、項目ごとに「公開」「証明のみ」「暗号集計」を選べる。"}
+              {isBefore ? "従来は全データの開示を求めるしかなかった。" : "VCCの世界では、項目ごとに「公開」「証明のみ」「暗号集計」を選べる。"}
             </p>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
