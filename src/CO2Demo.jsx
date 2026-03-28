@@ -4,12 +4,12 @@ export default function CO2Demo() {
   const [tab, setTab] = useState("before");
   const [step, setStep] = useState(0);
   const [truckPos, setTruckPos] = useState(0);
-  const [sendProgress, setSendProgress] = useState([0, 0, 0]); // 各社の送信進捗 0~100
+  const [sendProgress, setSendProgress] = useState([0, 0, 0, 0]); // 各社の送信進捗 0~100
   const bottomRef = useRef(null);
 
   const isBefore = tab === "before";
 
-  useEffect(() => { setStep(0); setTruckPos(0); setSendProgress([0, 0, 0]); }, [tab]);
+  useEffect(() => { setStep(0); setTruckPos(0); setSendProgress([0, 0, 0, 0]); }, [tab]);
 
   // トラック走行
   useEffect(() => {
@@ -26,7 +26,7 @@ export default function CO2Demo() {
       setSendProgress(prev => {
         const next = [...prev];
         let allDone = true;
-        for (let i = 0; i < 3; i++) {
+        for (let i = 0; i < 4; i++) {
           // 各社を時間差でスタート
           const delay = i * 20;
           if (next[i] < 100) {
@@ -56,12 +56,13 @@ export default function CO2Demo() {
   }, [step]);
 
   const next = () => setStep(s => s + 1);
-  const reset = () => { setStep(0); setTruckPos(0); setSendProgress([0, 0, 0]); window.scrollTo({ top: 0, behavior: "smooth" }); };
+  const reset = () => { setStep(0); setTruckPos(0); setSendProgress([0, 0, 0, 0]); window.scrollTo({ top: 0, behavior: "smooth" }); };
 
   const companies = [
-    { emoji: "🌾", name: "農場", input: "栽培面積・肥料・燃料", co2: 12.4 },
-    { emoji: "🏭", name: "加工場", input: "電力・冷蔵・廃棄量", co2: 18.5 },
-    { emoji: "🚛", name: "物流", input: "距離・積載率・車種", co2: 31.2 },
+    { emoji: "🌾", name: "農場", input: "栽培面積・肥料・燃料", co2: 12.4, cooperates: true },
+    { emoji: "🚛", name: "物流A", input: "距離・積載率・車種", co2: 15.8, cooperates: false },
+    { emoji: "🏭", name: "加工場", input: "電力・冷蔵・廃棄量", co2: 18.5, cooperates: true },
+    { emoji: "🚛", name: "物流B", input: "距離・積載率・車種", co2: 15.4, cooperates: false },
   ];
 
   const totalCo2 = companies.reduce((sum, c) => sum + c.co2, 0);
@@ -73,7 +74,7 @@ export default function CO2Demo() {
         {/* ヘッダー */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Scope3 CO₂ サプライチェーン可視化</h1>
+            <h1 className="text-2xl font-bold text-gray-900">ValueCycleCode</h1>
             <p className="text-sm text-gray-400 mt-0.5">{isBefore
               ? "見せてください → 見せたくない → 集計できない"
               : "見なくても証明できる → 見なくても集計できる"
@@ -94,21 +95,19 @@ export default function CO2Demo() {
         {/* ===== Step 0: サプライチェーン全体像 ===== */}
         <div className="bg-white rounded-2xl border border-gray-200 p-8">
           <h2 className="text-lg font-bold text-gray-900 mb-4">サプライチェーン</h2>
-          <div className="flex items-center justify-center gap-8 mb-6">
+          <div className="flex items-center justify-center gap-4 mb-6 flex-wrap">
             {companies.map((c, i) => (
-              <div key={i} className="flex items-center gap-8">
+              <div key={i} className="flex items-center gap-4">
                 <div className="text-center">
-                  <div className="text-4xl mb-1">{c.emoji}</div>
-                  <div className="font-bold text-gray-900">{c.name}</div>
-                  <div className="text-xs text-gray-400">{c.input}</div>
+                  <div className="text-3xl mb-1">{c.emoji}</div>
+                  <div className="font-bold text-gray-900 text-sm">{c.name}</div>
                 </div>
-                {i < 2 && <div className="text-2xl text-gray-300">→</div>}
+                <div className="text-xl text-gray-300">→</div>
               </div>
             ))}
-            <div className="text-2xl text-gray-300">→</div>
             <div className="text-center">
-              <div className="text-4xl mb-1">🏪</div>
-              <div className="font-bold text-gray-900">カスミ</div>
+              <div className="text-3xl mb-1">🏪</div>
+              <div className="font-bold text-gray-900 text-sm">小売</div>
               <div className="text-xs text-gray-400">Scope3集計</div>
             </div>
           </div>
@@ -132,7 +131,7 @@ export default function CO2Demo() {
           <div className="bg-white rounded-2xl border border-gray-200 p-6">
             <h2 className="text-lg font-bold text-gray-900 mb-3">① 配送</h2>
             <div className="flex justify-between items-center px-4 mb-1 text-sm text-gray-400">
-              <span>🌾 農場</span><span>🏭 加工場</span><span>🏪 カスミ</span>
+              <span>🌾 農場</span><span>🚛</span><span>🏭 加工場</span><span>🚛</span><span>🏪 小売</span>
             </div>
             <div className="relative h-12 bg-gray-50 rounded-xl">
               <div className="absolute top-1/2 left-4 right-4 h-px bg-gray-200 -translate-y-1/2" />
@@ -151,7 +150,7 @@ export default function CO2Demo() {
             <h2 className="text-lg font-bold text-gray-900 mb-2">② 各社がCO₂を算出</h2>
             <p className="text-sm text-gray-400 mb-4">各社は自社のCO₂排出量を計算する。この時点では平文（そのままの数値）。</p>
 
-            <div className="grid grid-cols-3 gap-4 mb-6">
+            <div className="grid grid-cols-4 gap-4 mb-6">
               {companies.map((c, i) => (
                 <div key={i} className="rounded-xl border border-gray-200 p-5">
                   <div className="flex items-center gap-2 mb-3">
@@ -176,7 +175,7 @@ export default function CO2Demo() {
                   className={`px-8 py-3 rounded-xl text-sm font-bold text-white cursor-pointer ${
                     isBefore ? "bg-slate-800 hover:bg-slate-700" : "bg-[#1D9E75] hover:bg-[#178a63]"
                   }`}>
-                  {isBefore ? "カスミに報告する →" : "暗号化してカスミに送信する →"}
+                  {isBefore ? "小売に報告する →" : "暗号化して小売に送信する →"}
                 </button>
               </div>
             )}
@@ -187,13 +186,13 @@ export default function CO2Demo() {
         {step >= 3 && (
           <div className="bg-white rounded-2xl border border-gray-200 p-6">
             <h2 className="text-lg font-bold text-gray-900 mb-2">
-              ③ {isBefore ? "カスミへ報告" : "暗号化してカスミへ送信"}
+              ③ {isBefore ? "小売へ報告" : "暗号化して小売へ送信"}
             </h2>
             {!isBefore && (
-              <p className="text-sm text-gray-400 mb-4">送信時に自動で暗号化。カスミには暗号文だけが届く。</p>
+              <p className="text-sm text-gray-400 mb-4">送信時に自動で暗号化。小売には暗号文だけが届く。</p>
             )}
 
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-4 gap-4">
               {companies.map((c, i) => (
                 <div key={i} className="text-center">
                   {/* 送信元（各社） */}
@@ -236,13 +235,13 @@ export default function CO2Demo() {
                     )}
                   </div>
 
-                  {/* 送信先（カスミ） */}
+                  {/* 送信先（小売） */}
                   <div className={`rounded-xl border p-3 mt-2 ${
                     sendProgress[i] >= 100
                       ? isBefore ? "border-yellow-300 bg-yellow-50" : "border-[#1D9E75]/30 bg-[#1D9E75]/5"
                       : "border-gray-100 bg-gray-50"
                   }`}>
-                    <div className="text-xs text-gray-400 mb-1">🏪 カスミが受信</div>
+                    <div className="text-xs text-gray-400 mb-1">🏪 小売が受信</div>
                     {sendProgress[i] >= 100 ? (
                       isBefore ? (
                         <div className="font-mono font-bold text-lg text-gray-900">
@@ -259,19 +258,19 @@ export default function CO2Demo() {
               ))}
             </div>
 
-            {/* 受信完了後のカスミ視点 */}
+            {/* 受信完了後の小売視点 */}
             {sendProgress.every(p => p >= 100) && (
               <div className={`mt-4 rounded-xl p-4 text-center ${
                 isBefore ? "bg-yellow-50 border border-yellow-200" : "bg-[#1D9E75]/5 border border-[#1D9E75]/20"
               }`}>
-                <div className="text-sm font-bold text-gray-700 mb-1">🏪 カスミが受信したデータ</div>
+                <div className="text-sm font-bold text-gray-700 mb-1">🏪 小売が受信したデータ</div>
                 {isBefore ? (
                   <div className="text-sm text-yellow-700">
                     ⚠ 全社の実数値が丸見え — {companies.map(c => `${c.name}: ${c.co2}kg`).join("、")}
                   </div>
                 ) : (
                   <div className="text-sm text-[#1D9E75]">
-                    🔒 暗号文のみ — 個社の数値はカスミにも見えない
+                    🔒 暗号文のみ — 個社の数値は小売にも見えない
                   </div>
                 )}
               </div>
@@ -285,41 +284,60 @@ export default function CO2Demo() {
             {isBefore ? (
               /* 従来: 拒否 → 集計不可 */
               <div className="bg-white rounded-2xl border border-gray-200 p-6">
-                <h2 className="text-lg font-bold text-gray-900 mb-4">④ 報告を求める → 拒否される</h2>
+                <h2 className="text-lg font-bold text-gray-900 mb-4">④ 報告を求める</h2>
                 <p className="text-sm text-gray-400 mb-4">
-                  カスミに実数値が見えてしまう。サプライヤーはこれを嫌がる。
+                  協力してくれる会社もあるが、拒否する会社もある。一社でも欠けると全体集計ができない。
                 </p>
                 <div className="space-y-3 mb-6 max-w-2xl">
                   {[
-                    "企業秘密です。競合に知られたら価格交渉で不利になります。",
-                    "うちだけ数値が高く見えたら取引を切られるかもしれない。",
-                    "データが改ざんされないか心配。責任を負いたくない。",
-                  ].map((reason, i) => (
-                    <div key={i} className="flex items-start gap-3 p-4 bg-[#D85A30]/5 rounded-xl">
+                    { ok: true, say: "うちは出せます" },
+                    { ok: false, say: "排出量を知られたら運賃交渉で不利になる" },
+                    { ok: true, say: "透明性は大事なので協力します" },
+                    { ok: false, say: "データ改ざんが心配。責任を負いたくない" },
+                  ].map((r, i) => (
+                    <div key={i} className={`flex items-start gap-3 p-4 rounded-xl ${
+                      r.ok ? "bg-green-50" : "bg-[#D85A30]/5"
+                    }`}>
                       <span className="text-lg shrink-0">{companies[i].emoji}</span>
                       <div className="flex-1">
                         <div className="text-sm font-bold text-gray-700">{companies[i].name}</div>
-                        <div className="text-sm text-gray-600">「{reason}」</div>
+                        <div className="text-sm text-gray-600">「{r.say}」</div>
                       </div>
-                      <span className="text-[#D85A30] font-bold shrink-0">✕ 拒否</span>
+                      {r.ok ? (
+                        <span className="text-green-600 font-bold shrink-0">○ 協力</span>
+                      ) : (
+                        <span className="text-[#D85A30] font-bold shrink-0">✕ 拒否</span>
+                      )}
                     </div>
                   ))}
                 </div>
 
-                {/* 結果: 集計不可 */}
+                {/* 結果: 部分的にしか集計できない */}
                 <div className="bg-[#D85A30]/5 rounded-xl p-8 text-center">
                   <div className="text-4xl mb-3">😔</div>
-                  <div className="text-xl font-bold text-[#D85A30] mb-2">Scope3 集計不可</div>
+                  <div className="text-xl font-bold text-[#D85A30] mb-2">Scope3 集計不完全</div>
                   <p className="text-sm text-gray-500 mb-4">
-                    実数値の開示を求めるアプローチには構造的な限界がある。
+                    協力企業のデータだけでは全体像が分からない。一社でも欠けるとサプライチェーン全体の算定ができない。
                   </p>
-                  <div className="grid grid-cols-3 gap-3 max-w-md mx-auto">
+                  <div className="grid grid-cols-4 gap-3 max-w-lg mx-auto">
                     {companies.map((c, i) => (
-                      <div key={i} className="bg-white rounded-xl p-3 text-center border border-[#D85A30]/10">
+                      <div key={i} className={`rounded-xl p-3 text-center border ${
+                        c.cooperates ? "bg-white border-green-200" : "bg-white border-[#D85A30]/20"
+                      }`}>
                         <div>{c.emoji} {c.name}</div>
-                        <div className="text-[#D85A30] font-bold text-xl">✕</div>
+                        {c.cooperates ? (
+                          <div className="text-green-600 font-bold text-xl">○</div>
+                        ) : (
+                          <div className="text-[#D85A30] font-bold text-xl">✕</div>
+                        )}
+                        <div className="text-[10px] text-gray-400">
+                          {c.cooperates ? "報告済み" : "拒否"}
+                        </div>
                       </div>
                     ))}
+                  </div>
+                  <div className="mt-4 text-sm text-gray-500">
+                    報告率: {companies.filter(c => c.cooperates).length} / {companies.length} 社 → <strong className="text-[#D85A30]">全体集計は不可能</strong>
                   </div>
                 </div>
               </div>
@@ -332,7 +350,7 @@ export default function CO2Demo() {
                   <p className="text-sm text-gray-400 mb-4">
                     ブロックチェーンで10年以上使われてきた暗号技術を組み合わせる
                   </p>
-                  <div className="grid grid-cols-3 gap-4 mb-4">
+                  <div className="grid grid-cols-4 gap-4 mb-4">
                     {[
                       { tag: "hyde", color: "#378ADD", icon: "🔐", title: "改ざん防止",
                         text: "センサーがTPMチップで電子署名。データは生まれた瞬間から改ざん不可能。",
@@ -418,6 +436,60 @@ export default function CO2Demo() {
                       className="px-5 py-2 rounded-lg text-sm cursor-pointer bg-white/10 text-slate-300 hover:bg-white/20">
                       ↺ 最初から
                     </button>
+                  </div>
+                </div>
+
+                {/* なぜできるのか — 結果の後に説明 */}
+                <div className="bg-white rounded-2xl border border-gray-200 p-8">
+                  <h2 className="text-xl font-bold text-gray-900 mb-2">なぜ、数値を見せずに集計できるのか？</h2>
+                  <p className="text-sm text-gray-400 mb-6">3つの暗号技術の組み合わせ。すべてブロックチェーンで10年以上の実績がある。</p>
+
+                  <div className="space-y-6">
+                    {/* hyde */}
+                    <div className="flex gap-4 items-start">
+                      <div className="w-14 h-14 rounded-xl bg-[#378ADD] flex items-center justify-center text-white font-bold text-sm shrink-0">hyde</div>
+                      <div>
+                        <div className="font-bold text-gray-900 mb-1">データが本物であることを保証する</div>
+                        <p className="text-sm text-gray-600 mb-2">
+                          各社のIoTセンサーに搭載されたTPMチップが、計測した瞬間にデータに電子署名する。
+                          Excelに人間が入力するのではなく、<strong>機械が直接署名する</strong>ので、途中で書き換えると署名が壊れて検知できる。
+                        </p>
+                        <div className="text-xs text-gray-400 bg-gray-50 rounded-lg p-2">
+                          📎 TEE（Trusted Execution Environment）— Intel SGX等でブロックチェーンのノード保護に使われてきた技術
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* argo */}
+                    <div className="flex gap-4 items-start">
+                      <div className="w-14 h-14 rounded-xl bg-[#1D9E75] flex items-center justify-center text-white font-bold text-sm shrink-0">argo</div>
+                      <div>
+                        <div className="font-bold text-gray-900 mb-1">数値を見せずに「基準以下」を証明する</div>
+                        <p className="text-sm text-gray-600 mb-2">
+                          例えば「私の年収は500万以上です」と証明したいとき、給与明細を見せなくても数学的に証明できる技術。
+                          同じ原理で、CO₂排出量が<strong>基準値以下であることだけ</strong>を、実数値を見せずに証明する。
+                        </p>
+                        <div className="text-xs text-gray-400 bg-gray-50 rounded-lg p-2">
+                          📎 ゼロ知識証明（ZKP）— Zcash（2016年〜）やEthereum L2で毎日数百万件処理されている技術
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* plat */}
+                    <div className="flex gap-4 items-start">
+                      <div className="w-14 h-14 rounded-xl bg-[#7F77DD] flex items-center justify-center text-white font-bold text-sm shrink-0">plat</div>
+                      <div>
+                        <div className="font-bold text-gray-900 mb-1">暗号化したまま足し算する</div>
+                        <p className="text-sm text-gray-600 mb-2">
+                          通常、暗号化されたデータを足すには一度復号する必要がある。
+                          準同型暗号（FHE）は<strong>暗号文のまま足し算</strong>ができる。
+                          復号しても合計値しか分からず、各社の個別データは秘密のまま。
+                        </p>
+                        <div className="text-xs text-gray-400 bg-gray-50 rounded-lg p-2">
+                          📎 準同型暗号（FHE）— Web3のプライバシー保護投票やオンチェーンオークションで実用化が進む技術
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
